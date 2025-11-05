@@ -1,12 +1,10 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-import { PrismaClient } from '../generated/prisma/client';
+import { createNotificationJob, getNotificationJobWithSameIdempotencyKey } from './repository';
 
 const app = express();
 app.use(express.json());
-
-const prisma = new PrismaClient();
 
 type NotificationJobResponse = {
     job_id: string;
@@ -21,11 +19,7 @@ app.post('/api/notifications', async (req: Request, res: Response) => {
     }
 
     // validasi idempotency_key
-    const getTheSameIdempotencyKey = await prisma.notificationJob.findFirst({
-        where: {
-            idempotency_key
-        },
-    })
+    const getTheSameIdempotencyKey = await getNotificationJobWithSameIdempotencyKey(idempotency_key)
 
     if (getTheSameIdempotencyKey != null) {
         const {
@@ -51,15 +45,7 @@ app.post('/api/notifications', async (req: Request, res: Response) => {
         }
     }
 
-    const notificationJob = await prisma.notificationJob.create({
-        data: {
-            recipient,
-            channel,
-            message,
-            idempotency_key,
-            next_run_at: new Date(Date.now()),
-        },
-    });
+    const notificationJob = await createNotificationJob(recipient, channel, message, idempotency_key)
 
     const response: NotificationJobResponse = {
         job_id: notificationJob.id,
