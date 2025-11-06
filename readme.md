@@ -8,9 +8,17 @@ npm i
 ## Environment
 buat file baru dengan nama `.env` dan salin isi dari `.env.example` ke dalamnya. kemudian sesuaikan variable `DATABASE_URL` dengan url local.
 
+## Migrate
+jalankan:
+```
+npx prisma migrate dev --name init
+```
+
+agar database siap digunakan
+
 # Penjelasan src
 
-aplikasi ini dibuat menggunakan typescript, dengan dependensi ke prisma dan express. dengan implement repository pattern agar semua query disimpan dalam 1 file, tidak tersebar dimana mana.
+aplikasi ini dibuat menggunakan typescript, dengan dependensi ke prisma dan express.js. dengan implement repository pattern agar semua query disimpan dalam 1 file, tidak tersebar dimana mana.
 
 ## src/main.ts
 file ini berisi http server yg dibuat dengan express dengan endpoint `/api/notifications` dan `/internal/queue/stats`. 
@@ -21,7 +29,7 @@ npm run app
 ```
 
 ## src/worker.ts
-file ini berisi logika untuk menjalankan job yang dibuat saat meng-call endpoint `/api/notifications`. 
+file ini berisi logika untuk menjalankan job yang dibuat setelah meng-call endpoint `/api/notifications`. 
 
 untuk menjalankan, gunakan perintah:
 ```bash
