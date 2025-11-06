@@ -221,3 +221,65 @@ setInterval(() => {
 dan menggunakan `.catch` agar aplikasi tidak crash ketika ada error.
 
 # Simulasi pengetesan
+
+## Automasi
+
+saya membuatkan file `scripts/automationTest.ts` untuk menjalankan test secara otomatis. jalankan perintah:
+```bash
+npm run test
+```
+
+untuk menjalankan testnya. 
+
+di dalam test nya akan menghapus semua job, kemudian insert 20 data. 
+```log
+table truncated
+berhasil insert 20 data
+running worker
+stdout: 
+> worker
+> tsx ./src/worker.ts
+stdout: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+stdout: IS_FIRST_RUN true
+
+stdout: 2025-11-06T02:47:48.547Z - menjalankan worker
+
+stdout: 2025-11-06T02:47:48.588Z - all data: 20
+
+stdout: 2025-11-06T02:47:48.588Z - thirtyPercentOfData: 6
+2025-11-06T02:47:48.588Z - trigger error di data ke 15
+```
+
+yg artinya total job ada 20, dan akan di trigger error di data ke 15-20(total 6 data).
+
+di salah satu stderr akan muncul:
+```
+stderr: Error: 2025-11-06T02:47:51.622Z - gagal memproses job f55be1c6-9351-4616-8f95-f6cfcecd3427, recipient: user16@example.com: Error: gagal mengirim notif. akan dijalankan lagi di 2025-11-06T02:47:57.867Z
+```
+
+artinya error berhasil di trigger. tunggu 5 detik, lalu di stdout akan muncul:
+```
+2025-11-06T02:45:02.585Z - berhasil mengirim notifikasi ke user16@example.com
+```
+
+yang artinya di next run akan berhasil dikirim emailnya.
+
+## Simulasi Race condition 
+
+saya membuat file `scripts/raceConditionTest.ts` untuk menjalankan test race condition. jalankan perintah:
+```bash
+npm run race-test
+```
+
+dan di salah satu stderr akan muncul:
+```
+stderr worker2: Error: 2025-11-06T02:57:49.578Z - gagal memproses job 383c6fe7-1b68-4e3a-9b36-5d591a6c02ef, recipient: user7@example.com: Error: gagal mengirim notif. sudah dikerjakan oleh worker lain
+```
+
+yang artinya worker 1 sudah handle job tersebut dan tidak akan mengirim email oleh worker 1.
+
+berikut bukti kalau worker 1 yang mengirim email:
+```
+stdout worker1: 2025-11-06T02:57:49.612Z - berhasil mengirim notifikasi ke user7@example.com
+```

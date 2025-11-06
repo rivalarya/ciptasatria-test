@@ -1,7 +1,9 @@
 {
   "scripts": {
     "app": "tsx ./src/main.ts",
-    "worker": "tsx ./src/worker.ts"
+    "worker": "tsx ./src/worker.ts",
+    "test": "tsx ./scripts/automationTest.ts",
+    "race-test": "tsx ./scripts/raceConditionTest.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
