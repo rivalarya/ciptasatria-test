@@ -93,3 +93,47 @@ export async function setJobAsSuccess(id: string) {
   })
 }
 
+export async function getStats() {
+  const pendingJobs = await prisma.notificationJob.count({
+    where: {
+      status: NotificationJobStatus.PENDING
+    }
+  })
+  const retryJobs = await prisma.notificationJob.count({
+    where: {
+      status: NotificationJobStatus.RETRY
+    }
+  })
+  const processingJobs = await prisma.notificationJob.count({
+    where: {
+      status: NotificationJobStatus.PROCESSING
+    }
+  })
+  const successJobs = await prisma.notificationJob.count({
+    where: {
+      status: NotificationJobStatus.SUCCESS
+    }
+  })
+  const failedJobs = await prisma.notificationJob.count({
+    where: {
+      status: NotificationJobStatus.FAILED
+    }
+  })
+  const successJobsWithAttempts = await prisma.notificationJob.findMany({
+    where: {
+      status: NotificationJobStatus.SUCCESS
+    },
+    select: {
+      attempts: true
+    }
+  })
+
+  return {
+    pendingJobs,
+    retryJobs,
+    processingJobs,
+    successJobs,
+    failedJobs,
+    successJobsWithAttempts
+  }
+}

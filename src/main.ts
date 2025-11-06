@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-import { createNotificationJob, getNotificationJobWithSameIdempotencyKey } from './repository';
+import { createNotificationJob, getNotificationJobWithSameIdempotencyKey, getStats } from './repository';
 import { NotificationJobStatus } from '../generated/prisma/enums';
 
 const app = express();
@@ -57,8 +57,22 @@ app.post('/api/notifications', async (req: Request, res: Response) => {
 });
 
 
-app.get('/internal/queue/stats', (req: Request, res: Response) => {
-    res.send('Hello World!');
+app.get('/internal/queue/stats', async (req: Request, res: Response) => {
+    const statsData = await getStats()
+
+    const sumOfAttempts = statsData.successJobsWithAttempts.reduce((acc, cur) => acc + cur.attempts, 0)
+    const avgAttemptsSuccess = statsData.successJobs ? (sumOfAttempts / statsData.successJobs) : 0
+
+    const response = {
+        pending: statsData.pendingJobs,
+        retry: statsData.retryJobs,
+        processing: statsData.processingJobs,
+        success: statsData.successJobs,
+        failed: statsData.failedJobs,
+        avg_attempts_success: avgAttemptsSuccess
+    }
+
+    return res.status(200).json(response);
 });
 
 const port = process.env.PORT || 3000;
