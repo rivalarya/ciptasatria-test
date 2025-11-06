@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { PrismaClient } from '../generated/prisma/client';
+import { NotificationJobStatus, PrismaClient } from '../generated/prisma/client';
 const prisma = new PrismaClient();
 
 export async function getPendingAndRetryableJobs() {
@@ -33,3 +33,63 @@ export async function getNotificationJobWithSameIdempotencyKey(idempotency_key: 
     },
   });
 }
+
+export async function getRowVersion(id: string) {
+  const result = await prisma.$queryRaw<{ xmin: string }[]>`
+    SELECT xmin::text AS xmin
+    FROM "notification_jobs"
+    WHERE id = ${id}::uuid;
+  `;
+
+  return result[0]?.xmin ?? null;
+}
+
+export async function setJobAsProcessing(id: string) {
+  await prisma.notificationJob.update({
+    where: {
+      id: id
+    },
+    data: {
+      status: NotificationJobStatus.PROCESSING
+    }
+  })
+}
+
+export async function setJobAsRetry(id: string, attempts: number, nextRunAt: number) {
+  await prisma.notificationJob.update({
+    where: {
+      id: id
+    },
+    data: {
+      status: NotificationJobStatus.RETRY,
+      attempts: attempts,
+      next_run_at: new Date(Date.now() + nextRunAt)
+    }
+  })
+}
+
+export async function setJobAsFailed(id: string, error: string) {
+  await prisma.notificationJob.update({
+    where: {
+      id: id
+    },
+    data: {
+      status: NotificationJobStatus.FAILED,
+      processed_at: new Date(Date.now()),
+      last_error: error
+    }
+  })
+}
+
+export async function setJobAsSuccess(id: string) {
+  await prisma.notificationJob.update({
+    where: {
+      id: id
+    },
+    data: {
+      status: NotificationJobStatus.SUCCESS,
+      processed_at: new Date(Date.now())
+    }
+  })
+}
+

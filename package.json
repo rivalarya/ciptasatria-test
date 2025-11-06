@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "app": "tsx ./src/main.ts",
+    "worker": "tsx ./src/worker.ts"
+  },
   "dependencies": {
     "@prisma/client": "^6.18.0",
     "dotenv": "^17.2.3",

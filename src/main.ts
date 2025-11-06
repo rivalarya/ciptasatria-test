@@ -2,13 +2,14 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 import { createNotificationJob, getNotificationJobWithSameIdempotencyKey } from './repository';
+import { NotificationJobStatus } from '../generated/prisma/enums';
 
 const app = express();
 app.use(express.json());
 
 type NotificationJobResponse = {
     job_id: string;
-    status: 'PENDING' | 'PROCESSING' | 'RETRY' | 'SUCCESS' | 'FAILED';
+    status: NotificationJobStatus;
 }
 
 app.post('/api/notifications', async (req: Request, res: Response) => {
