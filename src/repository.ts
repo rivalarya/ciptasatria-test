@@ -5,13 +5,32 @@ import { NotificationJobStatus, PrismaClient } from '../generated/prisma/client'
 const prisma = new PrismaClient();
 
 export async function getPendingAndRetryableJobs() {
-  return await prisma.notificationJob.findMany({
+  const pendingAndRetryableJobs = await prisma.notificationJob.findMany({
     where: {
       status: {
         in: ['PENDING', 'RETRY']
       },
     }
   });
+
+  const unprocessedJob = await prisma.notificationJob.findMany({
+    where: {
+      status: 'PROCESSING'
+    }
+  })
+
+  // jika ada yg statusnya PROCESSING tapi next_run_at nya sudah lebih dari sekarang
+  // artinya worker berhenti ditengah jalan
+  // masukan sebagai job yg perlu dijalankan
+  for (let job of unprocessedJob) {
+    const now = Date.now()
+
+    if (job.next_run_at.getTime() <= now) {
+      pendingAndRetryableJobs.push(job)
+    }
+  }
+  
+  return pendingAndRetryableJobs
 }
 
 export async function createNotificationJob(recipient: string, channel: string, message: string, idempotency_key: string) {
