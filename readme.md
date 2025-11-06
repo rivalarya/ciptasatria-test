@@ -285,7 +285,7 @@ dan di salah satu stderr akan muncul:
 stderr worker2: Error: 2025-11-06T02:57:49.578Z - gagal memproses job 383c6fe7-1b68-4e3a-9b36-5d591a6c02ef, recipient: user7@example.com: Error: gagal mengirim notif. sudah dikerjakan oleh worker lain
 ```
 
-yang artinya worker 1 sudah handle job tersebut dan tidak akan mengirim email oleh worker 1.
+yang artinya worker 1 sudah handle job tersebut dan worker 2 tidak akan mengirim email.
 
 berikut bukti kalau worker 1 yang mengirim email:
 ```
