@@ -263,12 +263,12 @@ yg artinya total job ada 20, dan akan di trigger error di data ke 15-20(total 6 
 
 di salah satu stderr akan muncul:
 ```
-stderr: Error: 2025-11-06T02:47:51.622Z - gagal memproses job f55be1c6-9351-4616-8f95-f6cfcecd3427, recipient: user16@example.com: Error: gagal mengirim notif. akan dijalankan lagi di 2025-11-06T02:47:57.867Z
+stderr: Error: 2025-11-06T03:08:20.188Z - gagal memproses job abe5ce23-a4a0-4f0e-b2a4-295e8693c0fe, recipient: user16@example.com: Error: gagal mengirim notif. akan dijalankan lagi di 2025-11-06T03:08:26.205Z
 ```
 
 artinya error berhasil di trigger. tunggu 5 detik, lalu di stdout akan muncul:
 ```
-2025-11-06T02:45:02.585Z - berhasil mengirim notifikasi ke user16@example.com
+stdout: 2025-11-06T03:08:30.168Z - berhasil mengirim notifikasi ke user16@example.com
 ```
 
 yang artinya di next run akan berhasil dikirim emailnya.
